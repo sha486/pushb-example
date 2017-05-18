@@ -3,7 +3,6 @@ package com.sha.pushbullet.model;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -17,25 +16,23 @@ public class User {
 	private String userName;
 	@JsonProperty
 	private String accessToken;
-	//TODO Should be atomic long 
-	@JsonProperty
-	private long numberOfPushedNotifications;
-
+	private AtomicLong counter;
 	@JsonProperty
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime creationTime;
 
 	public User() {
+		this.creationTime = DateUtils.getCurrentDateTime();
+		this.counter = new AtomicLong(0);
 
 	}
 
 	public User(String userName, String accessToken) {
+		this();
 		this.userName = userName;
 		this.accessToken = accessToken;
-		this.creationTime = DateUtils.getCurrentDateTime();
-		this.numberOfPushedNotifications = 0;
-
+	
 	}
 
 	public String getUserName() {
@@ -46,8 +43,9 @@ public class User {
 		return accessToken;
 	}
 
+	@JsonProperty("numberOfPushedNotifications")
 	public long getNumberOfPushedNotifications() {
-		return numberOfPushedNotifications;
+		return counter.get();
 	}
 
 	public LocalDateTime getCreationTime() {
@@ -68,7 +66,7 @@ public class User {
 	}
 
 	public long incrementNotificationCount() {
-		return ++numberOfPushedNotifications;
+		return counter.incrementAndGet();
 	}
 
 }

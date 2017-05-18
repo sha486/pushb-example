@@ -1,10 +1,11 @@
 package com.sha.pushbullet.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import com.sha.pushbullet.model.User;
+import com.sha.pushbullet.service.exception.UserAlreadyExistsException;
 import com.sha.pushbullet.service.exception.UserNotFoundException;
 
 @Service
@@ -18,7 +19,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 	}
 
 	@Override
-	public User getUserByName(String name) {
+	public synchronized User getUserByName(String name) {
 
 		return users.stream().filter(u -> u.getUserName().equals(name)).findFirst()
 				.orElseThrow(UserNotFoundException::new);
@@ -30,12 +31,22 @@ public class RegistrationServiceImpl implements RegistrationService {
 		return users;
 	}
 
-	// TODO validate user to prevent duplicate names?
 	@Override
 	public void registerUser(User user) {
 		
-		users.add(user);
+		if (!checkUserExists(user)) {
+			
+			users.add(user);
+		} else{
+			throw new UserAlreadyExistsException();
+		}
+		
 
+	}
+	
+	public boolean checkUserExists(User user) {
+		
+		return users.stream().anyMatch(u -> u.getUserName().equals(user.getUserName()));
 	}
 
 	/*
@@ -44,11 +55,19 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 	private static List<User> init() {
 
-		List<User> users = new ArrayList<User>(
-				Arrays.asList(new User("user001", "accessToken1"), new User("user002", "accessToken2")));
+		List<User> users = Collections.synchronizedList(new ArrayList<User>());
 
 		return users;
 
+	}
+
+	public void updateUser(User user) {
+		
+		User  updUser= getUserByName(user.getUserName());
+		
+		users.remove(updUser);
+		users.add(user);
+		
 	}
 
 }

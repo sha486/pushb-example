@@ -69,5 +69,4 @@ public class PushBulletTest {
 		pushNotification.send(unauthorisedUser, note);
 
 	}
-
 }

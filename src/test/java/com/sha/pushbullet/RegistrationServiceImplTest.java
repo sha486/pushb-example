@@ -6,6 +6,7 @@ import org.junit.Test;
 import com.sha.pushbullet.model.User;
 import com.sha.pushbullet.service.RegistrationService;
 import com.sha.pushbullet.service.RegistrationServiceImpl;
+import com.sha.pushbullet.service.exception.UserAlreadyExistsException;
 import com.sha.pushbullet.service.exception.UserNotFoundException;
 
 public class RegistrationServiceImplTest {
@@ -35,6 +36,17 @@ public class RegistrationServiceImplTest {
 		// then
 
 		assertEquals(expectedUser, actualUser);
+	}
+	
+	@Test(expected = UserAlreadyExistsException.class)
+	public void shouldThrowUserAlreadyExistsExceptionWhenDuplicateUserIsRegistered() throws Exception {
+
+		// given registered user
+		User actualUser = new User("user004", "user004Token");
+		registrationService.registerUser(actualUser);
+
+		registrationService.registerUser(actualUser);
+
 	}
 
 }

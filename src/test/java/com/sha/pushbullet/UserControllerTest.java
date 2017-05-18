@@ -13,14 +13,23 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.sha.pushbullet.controller.UserController;
+import com.sha.pushbullet.endpoint.Note;
+import com.sha.pushbullet.endpoint.PushNotification;
+import com.sha.pushbullet.endpoint.PushNotificationImpl;
+import com.sha.pushbullet.model.SendContainer;
 import com.sha.pushbullet.model.User;
 import com.sha.pushbullet.service.RegistrationServiceImpl;
 
@@ -31,6 +40,9 @@ public class UserControllerTest {
 	@Mock
 	RegistrationServiceImpl registrationService;
 
+	@Mock
+	PushNotificationImpl pushNotification;
+	
 	@InjectMocks
 	private UserController userController;
 
@@ -113,5 +125,27 @@ public class UserControllerTest {
 				.andExpect(status().isNotAcceptable());
 
 	}
+	
+	@Test
+	public void shouldSendPushMessageWhenGiveValidMessage() throws Exception {
 
+		// given
+		User user = new User("user001", "accessToken1");
+		
+		Note note = new Note();
+		note.setTitle("Test Message");
+		note.setBody("Sending push message");
+		
+		SendContainer container = new SendContainer();
+		container.setUser(user);
+		container.setNote(note);
+
+
+		when(pushNotification.send(Mockito.anyString(), Mockito.any())).thenReturn(1l);
+		// when + then
+		mockMvc.perform(
+				post("/users/pushMessages").content(TestUtils.asJson(container)).contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+				.andExpect(status().isCreated());
+
+	}
 }
