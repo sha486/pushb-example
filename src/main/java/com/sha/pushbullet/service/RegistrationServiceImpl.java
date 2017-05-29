@@ -19,7 +19,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 	}
 
 	@Override
-	public synchronized User getUserByName(String name) {
+	public User getUserByName(String name) {
 
 		return users.stream().filter(u -> u.getUserName().equals(name)).findFirst()
 				.orElseThrow(UserNotFoundException::new);
@@ -33,24 +33,23 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 	@Override
 	public void registerUser(User user) {
-		
+
 		if (!checkUserExists(user)) {
-			
+
 			users.add(user);
-		} else{
+		} else {
 			throw new UserAlreadyExistsException();
 		}
-		
 
 	}
-	
+
 	public boolean checkUserExists(User user) {
-		
+
 		return users.stream().anyMatch(u -> u.getUserName().equals(user.getUserName()));
 	}
 
 	/*
-	 * Populate list of users manually for now ... 
+	 * Populate list of users manually for now ...
 	 */
 
 	private static List<User> init() {
@@ -62,12 +61,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 	}
 
 	public void updateUser(User user) {
-		
-		User  updUser= getUserByName(user.getUserName());
-		
+
+		User updUser = getUserByName(user.getUserName());
+
 		users.remove(updUser);
 		users.add(user);
-		
+
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.sha.pushbullet.service;
 
 import java.util.List;
+
 import com.sha.pushbullet.model.User;
 
 public interface RegistrationService {
